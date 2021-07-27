@@ -12,6 +12,8 @@ import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by Vincent Woo
@@ -130,5 +132,25 @@ public class Util {
         } else {
             return "";
         }
+    }
+
+    public static String obtainSuffixRegex(String[] suffixes) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < suffixes.length ; i++) {
+            if (i ==0) {
+                builder.append(suffixes[i].replace(".", ""));
+            } else {
+                builder.append("|\\.");
+                builder.append(suffixes[i].replace(".", ""));
+            }
+        }
+        return ".+(\\." + builder.toString() + ")$";
+    }
+
+    public static boolean contains(String path, String mSuffixRegex) {
+        String name = Util.extractFileNameWithSuffix(path);
+        Pattern pattern = Pattern.compile(mSuffixRegex, Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(name);
+        return matcher.matches();
     }
 }

@@ -1,20 +1,28 @@
 package com.vincent.filepicker.activity;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.Toolbar;
+
+import android.os.Environment;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.vincent.filepicker.Constant;
 import com.vincent.filepicker.DividerListItemDecoration;
@@ -27,8 +35,13 @@ import com.vincent.filepicker.filter.callback.FilterResultCallback;
 import com.vincent.filepicker.filter.entity.Directory;
 import com.vincent.filepicker.filter.entity.NormalFile;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import pub.devrel.easypermissions.AfterPermissionGranted;
+
+import static android.provider.MediaStore.MediaColumns.DATA;
 
 /**
  * Created by Vincent Woo
@@ -37,6 +50,7 @@ import java.util.List;
  */
 
 public class NormalFilePickActivity extends BaseActivity {
+    private static final int RC_READ_EXTERNAL_STORAGE = 123;
     public static final int DEFAULT_MAX_NUMBER = 9;
     public static final String SUFFIX = "Suffix";
     private int mMaxNumber;
@@ -57,6 +71,12 @@ public class NormalFilePickActivity extends BaseActivity {
     @Override
     void permissionGranted() {
         loadData();
+    }
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        readExternalStorageForFiles();
     }
 
     @Override
@@ -145,39 +165,68 @@ public class NormalFilePickActivity extends BaseActivity {
     }
 
     private void loadData() {
-        FileFilter.getFiles(this, new FilterResultCallback<NormalFile>() {
-            @Override
-            public void onResult(List<Directory<NormalFile>> directories) {
-                // Refresh folder list
-                if (isNeedFolderList) {
-                    ArrayList<Directory> list = new ArrayList<>();
-                    Directory all = new Directory();
-                    all.setName(getResources().getString(R.string.vw_all));
-                    list.add(all);
-                    list.addAll(directories);
-                    mFolderHelper.fillData(list);
-                }
+        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q) {
+            FileFilter.getFiles(this, new FilterResultCallback<NormalFile>() {
+                @Override
+                public void onResult(List<Directory<NormalFile>> directories) {
+                    // Refresh folder list
+                    if (isNeedFolderList) {
+                        ArrayList<Directory> list = new ArrayList<>();
+                        Directory all = new Directory();
+                        all.setName(getResources().getString(R.string.vw_all));
+                        list.add(all);
+                        list.addAll(directories);
+                        mFolderHelper.fillData(list);
+                    }
 
-                mAll = directories;
-                refreshData(directories);
-            }
-        }, mSuffix);
+                    mAll = directories;
+                    refreshData(directories);
+                }
+            }, mSuffix);
+        }else {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    FileFilter.getNonMediaFiles(NormalFilePickActivity.this, new FilterResultCallback<NormalFile>() {
+                        @Override
+                        public void onResult(List<Directory<NormalFile>> directories) {
+                            // Refresh folder list
+                            if (isNeedFolderList) {
+                                ArrayList<Directory> list = new ArrayList<>();
+                                Directory all = new Directory();
+                                all.setName(getResources().getString(R.string.vw_all));
+                                list.add(all);
+                                list.addAll(directories);
+                                mFolderHelper.fillData(list);
+                            }
+                            mAll = directories;
+                            refreshData(directories);
+                        }
+                    }, mSuffix);
+                }
+            }).start();
+        }
     }
 
-    private void refreshData(List<Directory<NormalFile>> directories) {
-        mProgressBar.setVisibility(View.GONE);
-        List<NormalFile> list = new ArrayList<>();
-        for (Directory<NormalFile> directory : directories) {
-            list.addAll(directory.getFiles());
-        }
+    private void refreshData(final List<Directory<NormalFile>> directories) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mProgressBar.setVisibility(View.GONE);
+                List<NormalFile> list = new ArrayList<>();
+                for (Directory<NormalFile> directory : directories) {
+                    list.addAll(directory.getFiles());
+                }
 
-        for (NormalFile file : mSelectedList) {
-            int index = list.indexOf(file);
-            if (index != -1) {
-                list.get(index).setSelected(true);
+                for (NormalFile file : mSelectedList) {
+                    int index = list.indexOf(file);
+                    if (index != -1) {
+                        list.get(index).setSelected(true);
+                    }
+                }
+
+                mAdapter.refresh(list);
             }
-        }
-
-        mAdapter.refresh(list);
+        });
     }
 }

@@ -1,11 +1,13 @@
 package com.vincent.filepicker.filter.loader;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
-import android.support.v4.content.CursorLoader;
+import android.webkit.MimeTypeMap;
 
-import static android.provider.MediaStore.MediaColumns.MIME_TYPE;
+import androidx.loader.content.CursorLoader;
 
 /**
  * Created by Vincent Woo

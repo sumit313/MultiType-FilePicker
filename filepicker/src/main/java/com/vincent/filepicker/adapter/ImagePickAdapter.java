@@ -7,7 +7,9 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.v7.widget.RecyclerView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -60,6 +62,7 @@ public class ImagePickAdapter extends BaseAdapter<ImageFile, ImagePickAdapter.Im
         isNeedImagePager = needImagePager;
     }
 
+    @NonNull
     @Override
     public ImagePickViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(mContext).inflate(R.layout.vw_layout_item_image_pick, parent, false);
@@ -114,7 +117,7 @@ public class ImagePickAdapter extends BaseAdapter<ImageFile, ImagePickAdapter.Im
 
             RequestOptions options = new RequestOptions();
             Glide.with(mContext)
-                    .load(file.getPath())
+                    .load(file.getUri())
                     .apply(options.centerCrop())
                     .transition(withCrossFade())
 //                    .transition(new DrawableTransitionOptions().crossFade(500))

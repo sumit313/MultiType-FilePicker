@@ -1,17 +1,19 @@
 package com.vincent.filepicker.activity;
 
+import android.Manifest;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 
 import com.vincent.filepicker.FolderListHelper;
 import com.vincent.filepicker.R;
-import com.vincent.filepicker.adapter.FolderListAdapter;
-import com.vincent.filepicker.filter.entity.Directory;
 
 import java.util.List;
 
@@ -46,11 +48,6 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
         }
     }
 
-    @Override
-    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        readExternalStorage();
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -60,10 +57,52 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
     }
 
     /**
+     * Read external storage files
+     *
+     * Added the Manage External Storage Permission for Android 11 as Android 11 don't permit you to access
+     * the non media files and downloads directly through MediaStore API. You can only access the media files
+     * through MediaStore API.
+     * Google suggest that to access non media file you can use system picker, but you can't get the whole list of non media file
+     * to get the whole list of media files to create this multi picker we have added the all files permission.
+     */
+    @AfterPermissionGranted(RC_READ_EXTERNAL_STORAGE)
+    void readExternalStorageForFiles() {
+        //boolean isReadPermissionGranted = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R || EasyPermissions.hasPermissions(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        boolean isReadPermissionGranted = EasyPermissions.hasPermissions(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+
+        boolean isAllFileAccessGranted = true;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            isAllFileAccessGranted = Environment.isExternalStorageManager();
+        }
+        if (isReadPermissionGranted && isAllFileAccessGranted) {
+            permissionGranted();
+        } else {
+            String[] PERMISSIONS;
+
+            if (isAllFileAccessGranted){
+                PERMISSIONS = new String[]{
+                        Manifest.permission.READ_EXTERNAL_STORAGE
+                };
+            }else if (!isReadPermissionGranted){
+                PERMISSIONS = new String[]{
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.MANAGE_EXTERNAL_STORAGE
+                };
+            }else {
+                PERMISSIONS = new String[]{
+                        Manifest.permission.MANAGE_EXTERNAL_STORAGE
+                };
+            }
+            EasyPermissions.requestPermissions(this, getString(R.string.vw_rationale_storage),
+                    RC_READ_EXTERNAL_STORAGE, PERMISSIONS);
+        }
+    }
+
+    /**
      * Read external storage file
      */
     @AfterPermissionGranted(RC_READ_EXTERNAL_STORAGE)
-    private void readExternalStorage() {
+    void readExternalStorage() {
         boolean isGranted = EasyPermissions.hasPermissions(this, "android.permission.READ_EXTERNAL_STORAGE");
         if (isGranted) {
             permissionGranted();

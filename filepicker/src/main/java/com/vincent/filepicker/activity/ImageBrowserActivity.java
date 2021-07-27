@@ -2,10 +2,10 @@ package com.vincent.filepicker.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.support.v7.widget.Toolbar;
+import androidx.annotation.Nullable;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -65,6 +65,12 @@ public class ImageBrowserActivity extends BaseActivity {
 
 
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        readExternalStorage();
     }
 
     private void initView() {
@@ -157,7 +163,7 @@ public class ImageBrowserActivity extends BaseActivity {
             view.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 
             Glide.with(ImageBrowserActivity.this)
-                    .load(mList.get(position).getPath())
+                    .load(mList.get(position).getUri())
                     .transition(withCrossFade())
                     .into(view);
             container.addView(view);

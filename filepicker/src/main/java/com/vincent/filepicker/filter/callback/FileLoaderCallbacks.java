@@ -1,14 +1,15 @@
 package com.vincent.filepicker.filter.callback;
 
+import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.media.MediaMetadataRetriever;
-import android.media.ThumbnailUtils;
+import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
+import android.provider.MediaStore;
+
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
 
 import com.vincent.filepicker.Util;
 import com.vincent.filepicker.filter.entity.AudioFile;
@@ -21,14 +22,9 @@ import com.vincent.filepicker.filter.loader.FileLoader;
 import com.vincent.filepicker.filter.loader.ImageLoader;
 import com.vincent.filepicker.filter.loader.VideoLoader;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -73,7 +69,7 @@ public class FileLoaderCallbacks implements LoaderManager.LoaderCallbacks<Cursor
         this.mType = type;
         this.mSuffixArgs = suffixArgs;
         if (suffixArgs != null && suffixArgs.length > 0) {
-            mSuffixRegex = obtainSuffixRegex(suffixArgs);
+            mSuffixRegex = Util.obtainSuffixRegex(suffixArgs);
         }
     }
 
@@ -139,6 +135,8 @@ public class FileLoaderCallbacks implements LoaderManager.LoaderCallbacks<Cursor
             img.setBucketId(data.getString(data.getColumnIndexOrThrow(BUCKET_ID)));
             img.setBucketName(data.getString(data.getColumnIndexOrThrow(BUCKET_DISPLAY_NAME)));
             img.setDate(data.getLong(data.getColumnIndexOrThrow(DATE_ADDED)));
+            Uri uri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,img.getId());
+            img.setUri(uri);
 
             img.setOrientation(data.getInt(data.getColumnIndexOrThrow(ORIENTATION)));
 
@@ -181,6 +179,8 @@ public class FileLoaderCallbacks implements LoaderManager.LoaderCallbacks<Cursor
             video.setDate(data.getLong(data.getColumnIndexOrThrow(DATE_ADDED)));
 
             video.setDuration(data.getLong(data.getColumnIndexOrThrow(DURATION)));
+            Uri uri = ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,video.getId());
+            video.setUri(uri);
 
             //Create a Directory
             Directory<VideoFile> directory = new Directory<>();
@@ -219,7 +219,8 @@ public class FileLoaderCallbacks implements LoaderManager.LoaderCallbacks<Cursor
             audio.setDate(data.getLong(data.getColumnIndexOrThrow(DATE_ADDED)));
 
             audio.setDuration(data.getLong(data.getColumnIndexOrThrow(DURATION)));
-
+            Uri uri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,audio.getId());
+            audio.setUri(uri);
             //Create a Directory
             Directory<AudioFile> directory = new Directory<>();
             directory.setName(Util.extractFileNameWithSuffix(Util.extractPathWithoutSeparator(audio.getPath())));
@@ -248,7 +249,7 @@ public class FileLoaderCallbacks implements LoaderManager.LoaderCallbacks<Cursor
 
         while (data.moveToNext()) {
             String path = data.getString(data.getColumnIndexOrThrow(DATA));
-            if (path != null && contains(path)) {
+            if (path != null && Util.contains(path,mSuffixRegex)) {
                 //Create a File instance
                 NormalFile file = new NormalFile();
                 file.setId(data.getLong(data.getColumnIndexOrThrow(_ID)));
@@ -276,25 +277,5 @@ public class FileLoaderCallbacks implements LoaderManager.LoaderCallbacks<Cursor
         if (resultCallback != null) {
             resultCallback.onResult(directories);
         }
-    }
-
-    private boolean contains(String path) {
-        String name = Util.extractFileNameWithSuffix(path);
-        Pattern pattern = Pattern.compile(mSuffixRegex, Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(name);
-        return matcher.matches();
-    }
-
-    private String obtainSuffixRegex(String[] suffixes) {
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < suffixes.length ; i++) {
-            if (i ==0) {
-                builder.append(suffixes[i].replace(".", ""));
-            } else {
-                builder.append("|\\.");
-                builder.append(suffixes[i].replace(".", ""));
-            }
-        }
-        return ".+(\\." + builder.toString() + ")$";
     }
 }

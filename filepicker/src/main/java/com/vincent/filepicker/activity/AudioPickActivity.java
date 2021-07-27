@@ -3,9 +3,9 @@ package com.vincent.filepicker.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -71,6 +71,12 @@ public class AudioPickActivity extends BaseActivity {
         isNeedRecorder = getIntent().getBooleanExtra(IS_NEED_RECORDER, false);
         isTakenAutoSelected = getIntent().getBooleanExtra(IS_TAKEN_AUTO_SELECTED, true);
         initView();
+    }
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        readExternalStorage();
     }
 
     private void initView() {

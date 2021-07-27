@@ -1,5 +1,6 @@
 package com.vincent.filepicker.filter.entity;
 
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -18,6 +19,7 @@ public class BaseFile implements Parcelable {
     private String bucketName;  //Directory Name
     private long date;  //Added Date
     private boolean isSelected;
+    private Uri uri;
 
     @Override
     public boolean equals(Object o) {
@@ -95,6 +97,14 @@ public class BaseFile implements Parcelable {
 
     public void setSelected(boolean selected) {
         isSelected = selected;
+    }
+
+    public Uri getUri() {
+        return uri;
+    }
+
+    public void setUri(Uri uri) {
+        this.uri = uri;
     }
 
     @Override

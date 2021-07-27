@@ -3,8 +3,10 @@ package com.vincent.filepicker.activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
+
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -70,6 +72,12 @@ public class ImagePickActivity extends BaseActivity {
         isNeedImagePager = getIntent().getBooleanExtra(IS_NEED_IMAGE_PAGER, true);
         isTakenAutoSelected = getIntent().getBooleanExtra(IS_TAKEN_AUTO_SELECTED, true);
         initView();
+    }
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        readExternalStorage();
     }
 
     private void initView() {
