@@ -1,7 +1,13 @@
 package com.vincent.filepickersample;
 
 import android.content.Intent;
+
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -9,14 +15,15 @@ import android.widget.TextView;
 import com.vincent.filepicker.Constant;
 import com.vincent.filepicker.activity.AudioPickActivity;
 import com.vincent.filepicker.activity.ImagePickActivity;
-import com.vincent.filepicker.activity.NormalFilePickActivity;
 import com.vincent.filepicker.activity.VideoPickActivity;
 import com.vincent.filepicker.filter.entity.AudioFile;
 import com.vincent.filepicker.filter.entity.ImageFile;
-import com.vincent.filepicker.filter.entity.NormalFile;
 import com.vincent.filepicker.filter.entity.VideoFile;
 
 import java.util.ArrayList;
+
+import static android.provider.BaseColumns._ID;
+import static android.provider.MediaStore.MediaColumns.TITLE;
 
 //import static com.vincent.filepicker.activity.AudioPickActivity.IS_NEED_RECORDER;
 //import static com.vincent.filepicker.activity.BaseActivity.IS_NEED_FOLDER_LIST;
@@ -59,16 +66,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivityForResult(intent3, Constant.REQUEST_CODE_PICK_AUDIO);
                 break;
             case R.id.btn_pick_file:
-                Intent intent4 = new Intent(this, NormalFilePickActivity.class);
+                /*Intent intent4 = new Intent(this, NormalFilePickActivity.class);
                 intent4.putExtra(Constant.MAX_NUMBER, 10);
                 intent4.putExtra("isNeedFolderList", false);
                 intent4.putExtra(NormalFilePickActivity.SUFFIX,
-                        new String[] {"xlsx", "xls", "doc", "dOcX", "ppt", "pptx", "pdf"});
+                        new String[] {"xlsx", "xls", "doc", "dOcX", "ppt", "pptx", "pdf"});*/
+
+                Intent intent4 = new Intent(Intent.ACTION_GET_CONTENT);
+                intent4.addCategory(Intent.CATEGORY_OPENABLE);
+                intent4.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                intent4.setType("*/*");
                 startActivityForResult(intent4, Constant.REQUEST_CODE_PICK_FILE);
+
+                /*NewNormalFilePickerUtil filePickerUtil = new NewNormalFilePickerUtil(MainActivity.this);
+                filePickerUtil.loadFilePicker();*/
                 break;
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode,resultCode,data);
@@ -108,11 +124,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case Constant.REQUEST_CODE_PICK_FILE:
                 if (resultCode == RESULT_OK) {
-                    ArrayList<NormalFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_FILE);
+                    /*ArrayList<NormalFile> list = data.getParcelableArrayListExtra(Constant.RESULT_PICK_FILE);
                     StringBuilder builder = new StringBuilder();
                     for (NormalFile file : list) {
                         String path = file.getPath();
                         builder.append(path + "\n");
+                    }*/
+                    StringBuilder builder = new StringBuilder();
+                    if(data.getClipData() != null) {
+                        int count = data.getClipData().getItemCount();
+                        int currentItem = 0;
+                        while(currentItem < count) {
+                            Uri imageUri = data.getClipData().getItemAt(currentItem).getUri();
+                            Cursor cursor = getContentResolver().query(imageUri,null,null,null);
+                            try {
+                                if (cursor != null && cursor.moveToFirst()) {
+                                    String id = cursor.getString(cursor.getColumnIndex(_ID));
+                                    String name = cursor.getString(cursor.getColumnIndex(TITLE));
+                                }
+                            } finally {
+                                 cursor.close();
+                            }
+                            //do something with the image (save it to some directory or whatever you need to do with it here)
+                            currentItem = currentItem + 1;
+                            builder.append(imageUri.toString());
+                        }
+                    } else if(data.getData() != null) {
+                        //String imagePath = data.getData().getPath();
+                        Uri imageUri = data.getData();
+
+                        builder.append(imageUri.toString());
+                        //do something with the image (save it to some directory or whatever you need to do with it here)
                     }
                     mTvResult.setText(builder.toString());
                 }
