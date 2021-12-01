@@ -1,15 +1,11 @@
 package com.vincent.filepicker;
 
-import android.animation.Animator;
-import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.util.DisplayMetrics;
-import android.view.View;
 import android.view.WindowManager;
-import android.view.animation.DecelerateInterpolator;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -116,7 +112,10 @@ public class Util {
      * @return the path of URL without the file separator
      */
     public static String extractPathWithoutSeparator(String url) {
-        return url.substring(0, url.lastIndexOf("/"));
+        if (url.contains("/")) {
+            return url.substring(0, url.lastIndexOf("/"));
+        }
+        return url;
     }
 
     /**
