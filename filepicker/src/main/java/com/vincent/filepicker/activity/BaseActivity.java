@@ -68,9 +68,16 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
     @AfterPermissionGranted(RC_READ_EXTERNAL_STORAGE)
     void readExternalStorageForFiles() {
         //boolean isReadPermissionGranted = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R || EasyPermissions.hasPermissions(this, Manifest.permission.READ_EXTERNAL_STORAGE);
-        boolean isReadPermissionGranted = EasyPermissions.hasPermissions(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        boolean isReadPermissionGranted = false;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            isReadPermissionGranted = EasyPermissions.hasPermissions(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        }else{
+            isReadPermissionGranted = EasyPermissions.hasPermissions(this, Manifest.permission.READ_MEDIA_AUDIO,
+                    Manifest.permission.READ_MEDIA_IMAGES,
+                    Manifest.permission.READ_MEDIA_VIDEO);
+        }
 
-        boolean isAllFileAccessGranted = true;
+        /*boolean isAllFileAccessGranted = true;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             isAllFileAccessGranted = Environment.isExternalStorageManager();
         }
@@ -93,6 +100,40 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
                         Manifest.permission.MANAGE_EXTERNAL_STORAGE
                 };
             }
+            EasyPermissions.requestPermissions(this, getString(R.string.vw_rationale_storage),
+                    RC_READ_EXTERNAL_STORAGE, PERMISSIONS);
+        }*/
+
+        //boolean isAllFileAccessGranted = true;
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            isAllFileAccessGranted = Environment.isExternalStorageManager();
+        }*/
+        if (isReadPermissionGranted) {
+            permissionGranted();
+        } else {
+            String[] PERMISSIONS;
+
+           /* if (isAllFileAccessGranted){
+                PERMISSIONS = new String[]{
+                        Manifest.permission.READ_EXTERNAL_STORAGE
+                };
+            }else if (!isReadPermissionGranted){*/
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                PERMISSIONS = new String[]{
+                        Manifest.permission.READ_EXTERNAL_STORAGE
+                };
+            }else{
+                PERMISSIONS = new String[]{
+                        Manifest.permission.READ_MEDIA_AUDIO,
+                        Manifest.permission.READ_MEDIA_IMAGES,
+                        Manifest.permission.READ_MEDIA_VIDEO
+                };
+            }
+            /*}else {
+                PERMISSIONS = new String[]{
+                        Manifest.permission.MANAGE_EXTERNAL_STORAGE
+                };
+            }*/
             EasyPermissions.requestPermissions(this, getString(R.string.vw_rationale_storage),
                     RC_READ_EXTERNAL_STORAGE, PERMISSIONS);
         }
