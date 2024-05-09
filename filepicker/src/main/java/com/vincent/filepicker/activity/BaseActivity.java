@@ -71,6 +71,10 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
         boolean isReadPermissionGranted = false;
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             isReadPermissionGranted = EasyPermissions.hasPermissions(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        }else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.UPSIDE_DOWN_CAKE){
+            isReadPermissionGranted = (EasyPermissions.hasPermissions(this, Manifest.permission.READ_MEDIA_AUDIO,
+                    Manifest.permission.READ_MEDIA_IMAGES,
+                    Manifest.permission.READ_MEDIA_VIDEO) || EasyPermissions.hasPermissions(this,Manifest.permission.READ_MEDIA_AUDIO,Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED));
         }else{
             isReadPermissionGranted = EasyPermissions.hasPermissions(this, Manifest.permission.READ_MEDIA_AUDIO,
                     Manifest.permission.READ_MEDIA_IMAGES,
@@ -122,6 +126,11 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
                 PERMISSIONS = new String[]{
                         Manifest.permission.READ_EXTERNAL_STORAGE
                 };
+            }else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.UPSIDE_DOWN_CAKE){
+                PERMISSIONS = new String[]{Manifest.permission.READ_MEDIA_AUDIO,
+                        Manifest.permission.READ_MEDIA_IMAGES,
+                        Manifest.permission.READ_MEDIA_VIDEO,
+                        Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED};
             }else{
                 PERMISSIONS = new String[]{
                         Manifest.permission.READ_MEDIA_AUDIO,
@@ -149,6 +158,13 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
             PERMISSIONS = new String[]{
                     Manifest.permission.READ_EXTERNAL_STORAGE
             };
+        }else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.UPSIDE_DOWN_CAKE){
+            PERMISSIONS = new String[]{
+                    Manifest.permission.READ_MEDIA_AUDIO,
+                    Manifest.permission.READ_MEDIA_IMAGES,
+                    Manifest.permission.READ_MEDIA_VIDEO,
+                    Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
+            };
         }else{
             PERMISSIONS = new String[]{
                     Manifest.permission.READ_MEDIA_AUDIO,
@@ -156,7 +172,11 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
                     Manifest.permission.READ_MEDIA_VIDEO
             };
         }
-        boolean isGranted = EasyPermissions.hasPermissions(this, PERMISSIONS);
+            boolean isGranted = false;
+            if(Build.VERSION.SDK_INT == Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+                    isGranted=/*EasyPermissions.hasPermissions(this, PERMISSIONS) ||*/ EasyPermissions.hasPermissions(this,Manifest.permission.READ_MEDIA_AUDIO , Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED);
+                else
+                    isGranted=EasyPermissions.hasPermissions(this, PERMISSIONS);
         if (isGranted) {
             permissionGranted();
         } else {
@@ -174,11 +194,16 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
     @Override
     public void onPermissionsDenied(int requestCode, List<String> perms) {
         Log.d(TAG, "onPermissionsDenied:" + requestCode + ":" + perms.size());
-        // If Permission permanently denied, ask user again
-        if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
-            new AppSettingsDialog.Builder(this).build().show();
-        } else {
-            finish();
+        if(Build.VERSION.SDK_INT == Build.VERSION_CODES.UPSIDE_DOWN_CAKE && EasyPermissions.hasPermissions(this,Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)){
+            //isNeedFolderList=true;
+            permissionGranted();
+        }else{
+            // If Permission permanently denied, ask user again
+            if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
+                new AppSettingsDialog.Builder(this).build().show();
+            } else {
+                finish();
+            }
         }
     }
 
