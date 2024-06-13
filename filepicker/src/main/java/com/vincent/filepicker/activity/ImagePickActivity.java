@@ -8,6 +8,7 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
@@ -95,6 +96,7 @@ public class ImagePickActivity extends BaseActivity implements View.OnClickListe
         btnManage =(TextView) findViewById(R.id.txt_manage);
         btnManage.setOnClickListener(this);
         if(Build.VERSION.SDK_INT > Build.VERSION_CODES.TIRAMISU && EasyPermissions.hasPermissions(this, Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED) && !EasyPermissions.hasPermissions(this, Manifest.permission.READ_MEDIA_IMAGES)){
+           autoLaunchMediaSelection=true;
             limitAccessCl.setVisibility(View.VISIBLE);
         }else
             limitAccessCl.setVisibility(View.GONE);
@@ -223,6 +225,18 @@ public class ImagePickActivity extends BaseActivity implements View.OnClickListe
 
                 mAll = directories;
                 refreshData(directories);
+                if(directories.isEmpty() && autoLaunchMediaSelection){
+                    String[] PERMISSIONS = new String[0];
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                        PERMISSIONS = new String[]{
+                                Manifest.permission.READ_MEDIA_IMAGES,
+                                Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED,
+                        };
+                        //  isGranted = EasyPermissions.hasPermissions(this, PERMISSIONS) || EasyPermissions.hasPermissions(this, Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED);
+                        ActivityCompat.requestPermissions(ImagePickActivity.this,PERMISSIONS,
+                                RC_READ_EXTERNAL_STORAGE);
+                    }
+                }
             }
         });
     }
@@ -293,14 +307,14 @@ public class ImagePickActivity extends BaseActivity implements View.OnClickListe
     public void onClick(View v) {
         if (v.getId() == R.id.txt_manage) {
             String[] PERMISSIONS = new String[0];
-            if (Build.VERSION.SDK_INT == Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 PERMISSIONS = new String[]{
                         Manifest.permission.READ_MEDIA_IMAGES,
                         Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED,
                 };
               //  isGranted = EasyPermissions.hasPermissions(this, PERMISSIONS) || EasyPermissions.hasPermissions(this, Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED);
-                EasyPermissions.requestPermissions(this, getString(R.string.vw_rationale_storage),
-                        RC_READ_EXTERNAL_STORAGE, PERMISSIONS);
+                ActivityCompat.requestPermissions(this,PERMISSIONS,
+                        RC_READ_EXTERNAL_STORAGE);
             }
         }
     }

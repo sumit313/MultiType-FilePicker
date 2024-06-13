@@ -1,6 +1,7 @@
 package com.vincent.filepicker.activity;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -32,7 +33,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
     private static final String TAG = BaseActivity.class.getName();
 
     protected FolderListHelper mFolderHelper;
-    protected boolean isNeedFolderList;
+    protected boolean isNeedFolderList, autoLaunchMediaSelection=false;
     public static final String IS_NEED_FOLDER_LIST = "isNeedFolderList";
 
     abstract void permissionGranted();
@@ -71,7 +72,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
         boolean isReadPermissionGranted = false;
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             isReadPermissionGranted = EasyPermissions.hasPermissions(this, Manifest.permission.READ_EXTERNAL_STORAGE);
-        }else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.UPSIDE_DOWN_CAKE){
+        }else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE){
             isReadPermissionGranted = (EasyPermissions.hasPermissions(this, Manifest.permission.READ_MEDIA_AUDIO,
                     Manifest.permission.READ_MEDIA_IMAGES,
                     Manifest.permission.READ_MEDIA_VIDEO) || EasyPermissions.hasPermissions(this,Manifest.permission.READ_MEDIA_AUDIO,Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED));
@@ -126,7 +127,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
                 PERMISSIONS = new String[]{
                         Manifest.permission.READ_EXTERNAL_STORAGE
                 };
-            }else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.UPSIDE_DOWN_CAKE){
+            }else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE){
                 PERMISSIONS = new String[]{Manifest.permission.READ_MEDIA_AUDIO,
                         Manifest.permission.READ_MEDIA_IMAGES,
                         Manifest.permission.READ_MEDIA_VIDEO,
@@ -158,13 +159,27 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
             PERMISSIONS = new String[]{
                     Manifest.permission.READ_EXTERNAL_STORAGE
             };
-        }else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.UPSIDE_DOWN_CAKE){
-            PERMISSIONS = new String[]{
-                    Manifest.permission.READ_MEDIA_AUDIO,
-                    Manifest.permission.READ_MEDIA_IMAGES,
-                    Manifest.permission.READ_MEDIA_VIDEO,
-                    Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
-            };
+        }else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE){
+            if(this.getClass() == VideoPickActivity.class){
+                PERMISSIONS = new String[]{
+                        Manifest.permission.READ_MEDIA_AUDIO,
+                        Manifest.permission.READ_MEDIA_VIDEO,
+                        Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
+                };
+            }else if(this.getClass() == ImagePickActivity.class || this.getClass()== ImageBrowserActivity.class){
+                PERMISSIONS = new String[]{
+                        Manifest.permission.READ_MEDIA_AUDIO,
+                        Manifest.permission.READ_MEDIA_IMAGES,
+                        Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
+                };
+            }else {
+                PERMISSIONS = new String[]{
+                        Manifest.permission.READ_MEDIA_AUDIO,
+                        Manifest.permission.READ_MEDIA_IMAGES,
+                        Manifest.permission.READ_MEDIA_VIDEO,
+                        Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
+                };
+            }
         }else{
             PERMISSIONS = new String[]{
                     Manifest.permission.READ_MEDIA_AUDIO,
@@ -174,7 +189,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
         }
             boolean isGranted = false;
             if(Build.VERSION.SDK_INT == Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-                    isGranted=/*EasyPermissions.hasPermissions(this, PERMISSIONS) ||*/ EasyPermissions.hasPermissions(this,Manifest.permission.READ_MEDIA_AUDIO , Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED);
+                    isGranted=EasyPermissions.hasPermissions(this,Manifest.permission.READ_MEDIA_AUDIO , Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED);
                 else
                     isGranted=EasyPermissions.hasPermissions(this, PERMISSIONS);
         if (isGranted) {
@@ -188,14 +203,16 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
     @Override
     public void onPermissionsGranted(int requestCode, List<String> perms) {
         Log.d(TAG, "onPermissionsGranted:" + requestCode + ":" + perms.size());
+        autoLaunchMediaSelection=false;
         permissionGranted();
     }
 
     @Override
     public void onPermissionsDenied(int requestCode, List<String> perms) {
         Log.d(TAG, "onPermissionsDenied:" + requestCode + ":" + perms.size());
-        if(Build.VERSION.SDK_INT == Build.VERSION_CODES.UPSIDE_DOWN_CAKE && EasyPermissions.hasPermissions(this,Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)){
-            //isNeedFolderList=true;
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE && EasyPermissions.hasPermissions(this,Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)
+        && (perms.contains(Manifest.permission.READ_MEDIA_IMAGES) || perms.contains(Manifest.permission.READ_MEDIA_VIDEO))){
+            autoLaunchMediaSelection=false;
             permissionGranted();
         }else{
             // If Permission permanently denied, ask user again

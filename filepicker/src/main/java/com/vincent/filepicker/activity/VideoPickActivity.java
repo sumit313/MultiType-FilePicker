@@ -1,9 +1,13 @@
 package com.vincent.filepicker.activity;
 
+import android.Manifest;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
@@ -28,13 +32,15 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import pub.devrel.easypermissions.EasyPermissions;
+
 /**
  * Created by Vincent Woo
  * Date: 2016/10/21
  * Time: 14:02
  */
 
-public class VideoPickActivity extends BaseActivity {
+public class VideoPickActivity extends BaseActivity implements View.OnClickListener {
     public static final String THUMBNAIL_PATH = "FilePick";
     public static final String IS_NEED_CAMERA = "IsNeedCamera";
     public static final String IS_TAKEN_AUTO_SELECTED = "IsTakenAutoSelected";
@@ -51,7 +57,11 @@ public class VideoPickActivity extends BaseActivity {
     private List<Directory<VideoFile>> mAll;
     private ProgressBar mProgressBar;
 
-    private TextView tv_count;
+    private TextView tv_count , btnManage;
+    private ConstraintLayout limitAccessCl;
+
+    private static final int RC_READ_EXTERNAL_STORAGE = 123;
+
     private TextView tv_folder;
     private LinearLayout ll_folder;
     private RelativeLayout rl_done;
@@ -87,7 +97,14 @@ public class VideoPickActivity extends BaseActivity {
         GridLayoutManager layoutManager = new GridLayoutManager(this, COLUMN_NUMBER);
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.addItemDecoration(new DividerGridItemDecoration(this));
-
+        limitAccessCl=(ConstraintLayout) findViewById(R.id.cl_manage);
+        btnManage =(TextView) findViewById(R.id.txt_manage);
+        btnManage.setOnClickListener(this);
+        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.TIRAMISU && EasyPermissions.hasPermissions(this, Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED) && !EasyPermissions.hasPermissions(this, Manifest.permission.READ_MEDIA_VIDEO)){
+            autoLaunchMediaSelection=true;
+            limitAccessCl.setVisibility(View.VISIBLE);
+        }else
+            limitAccessCl.setVisibility(View.GONE);
         mAdapter = new VideoPickAdapter(this, isNeedCamera, mMaxNumber);
         mRecyclerView.setAdapter(mAdapter);
 
@@ -195,6 +212,18 @@ public class VideoPickActivity extends BaseActivity {
 
                 mAll = directories;
                 refreshData(directories);
+                if(directories.isEmpty() && autoLaunchMediaSelection){
+                    String[] PERMISSIONS = new String[0];
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                        PERMISSIONS = new String[]{
+                                Manifest.permission.READ_MEDIA_VIDEO,
+                                Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED,
+                        };
+                        //  isGranted = EasyPermissions.hasPermissions(this, PERMISSIONS) || EasyPermissions.hasPermissions(this, Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED);
+                        ActivityCompat.requestPermissions(VideoPickActivity.this,PERMISSIONS,
+                                RC_READ_EXTERNAL_STORAGE);
+                    }
+                }
             }
         });
     }
@@ -239,5 +268,32 @@ public class VideoPickActivity extends BaseActivity {
             }
         }
         return false;    // taken file wasn't found
+    }
+    @Override
+    protected void onResume() {
+        limitAccessCl=(ConstraintLayout) findViewById(R.id.cl_manage);
+        btnManage =(TextView) findViewById(R.id.txt_manage);
+        btnManage.setOnClickListener(this);
+        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.TIRAMISU && EasyPermissions.hasPermissions(this, Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED) && !EasyPermissions.hasPermissions(this, Manifest.permission.READ_MEDIA_VIDEO)){
+            limitAccessCl.setVisibility(View.VISIBLE);
+        }else
+            limitAccessCl.setVisibility(View.GONE);
+        super.onResume();
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.txt_manage) {
+            String[] PERMISSIONS = new String[0];
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                PERMISSIONS = new String[]{
+                        Manifest.permission.READ_MEDIA_VIDEO,
+                        Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED,
+                };
+                //  isGranted = EasyPermissions.hasPermissions(this, PERMISSIONS) || EasyPermissions.hasPermissions(this, Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED);
+                ActivityCompat.requestPermissions(this,PERMISSIONS,
+                        RC_READ_EXTERNAL_STORAGE);
+            }
+        }
     }
 }
