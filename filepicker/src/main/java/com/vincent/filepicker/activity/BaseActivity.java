@@ -29,7 +29,8 @@ import pub.devrel.easypermissions.EasyPermissions;
  */
 
 public abstract class BaseActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
-    private static final int RC_READ_EXTERNAL_STORAGE = 123;
+    private static final int RC_READ_EXTERNAL_STORAGE_FILES = 123;
+    private static final int RC_READ_EXTERNAL_STORAGE = 124;
     private static final String TAG = BaseActivity.class.getName();
 
     protected FolderListHelper mFolderHelper;
@@ -66,7 +67,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
      * Google suggest that to access non media file you can use system picker, but you can't get the whole list of non media file
      * to get the whole list of media files to create this multi picker we have added the all files permission.
      */
-    @AfterPermissionGranted(RC_READ_EXTERNAL_STORAGE)
+    @AfterPermissionGranted(RC_READ_EXTERNAL_STORAGE_FILES)
     void readExternalStorageForFiles() {
         //boolean isReadPermissionGranted = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R || EasyPermissions.hasPermissions(this, Manifest.permission.READ_EXTERNAL_STORAGE);
         boolean isReadPermissionGranted = false;
@@ -145,7 +146,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
                 };
             }*/
             EasyPermissions.requestPermissions(this, getString(R.string.vw_rationale_storage),
-                    RC_READ_EXTERNAL_STORAGE, PERMISSIONS);
+                    RC_READ_EXTERNAL_STORAGE_FILES, PERMISSIONS);
         }
     }
 
@@ -162,16 +163,17 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
         }else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE){
             if(this.getClass() == VideoPickActivity.class){
                 PERMISSIONS = new String[]{
-                        Manifest.permission.READ_MEDIA_AUDIO,
                         Manifest.permission.READ_MEDIA_VIDEO,
                         Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
                 };
             }else if(this.getClass() == ImagePickActivity.class || this.getClass()== ImageBrowserActivity.class){
                 PERMISSIONS = new String[]{
-                        Manifest.permission.READ_MEDIA_AUDIO,
                         Manifest.permission.READ_MEDIA_IMAGES,
                         Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
                 };
+            } else if (this.getClass()== AudioPickActivity.class){
+                PERMISSIONS = new String[]{
+                        Manifest.permission.READ_MEDIA_AUDIO};
             }else {
                 PERMISSIONS = new String[]{
                         Manifest.permission.READ_MEDIA_AUDIO,
@@ -188,8 +190,9 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
             };
         }
             boolean isGranted = false;
-            if(Build.VERSION.SDK_INT == Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-                    isGranted=EasyPermissions.hasPermissions(this,Manifest.permission.READ_MEDIA_AUDIO , Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED);
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+                    isGranted=EasyPermissions.hasPermissions(this, Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED) ||
+                            (EasyPermissions.hasPermissions(this,Manifest.permission.READ_MEDIA_AUDIO) && this.getClass()==AudioPickActivity.class);
                 else
                     isGranted=EasyPermissions.hasPermissions(this, PERMISSIONS);
         if (isGranted) {
