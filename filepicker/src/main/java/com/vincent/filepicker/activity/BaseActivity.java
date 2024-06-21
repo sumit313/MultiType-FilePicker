@@ -191,7 +191,7 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
         }
             boolean isGranted = false;
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-                    isGranted=EasyPermissions.hasPermissions(this, Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED) ||
+                    isGranted=(EasyPermissions.hasPermissions(this, Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED) && this.getClass()!=AudioPickActivity.class) ||
                             (EasyPermissions.hasPermissions(this,Manifest.permission.READ_MEDIA_AUDIO) && this.getClass()==AudioPickActivity.class);
                 else
                     isGranted=EasyPermissions.hasPermissions(this, PERMISSIONS);
