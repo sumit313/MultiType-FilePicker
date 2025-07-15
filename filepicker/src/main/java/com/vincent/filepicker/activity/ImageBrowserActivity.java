@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.bm.library.PhotoView;
 import com.bumptech.glide.Glide;
 import com.vincent.filepicker.Constant;
 import com.vincent.filepicker.R;
@@ -158,8 +157,8 @@ public class ImageBrowserActivity extends BaseActivity {
     private class ImageBrowserAdapter extends PagerAdapter {
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
-            PhotoView view = new PhotoView(ImageBrowserActivity.this);
-            view.enable();
+            ImageView view = new ImageView(ImageBrowserActivity.this);
+            view.setEnabled(true);
             view.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 
             Glide.with(ImageBrowserActivity.this)

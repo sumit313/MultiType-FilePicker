@@ -32,9 +32,9 @@ dependencies {
     }
     implementation 'com.github.bumptech.glide:annotations:4.11.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
-    implementation 'com.bm.photoview:library:1.4.1'
+    //implementation 'com.bm.photoview:library:1.4.1'
     implementation 'com.google.android.material:material:1.4.0'
     implementation 'pub.devrel:easypermissions:3.0.0'
 }
 
-apply from: 'publish.gradle'
+//apply from: 'publish.gradle'
