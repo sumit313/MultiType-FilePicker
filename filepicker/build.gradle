@@ -1,7 +1,4 @@
-plugins {
-    id 'com.android.library'
-    id 'maven-publish'
-}
+apply plugin: 'com.android.library'
 
 android {
     namespace 'com.vincent.filepicker'
@@ -38,4 +35,4 @@ dependencies {
     implementation 'pub.devrel:easypermissions:3.0.0'
 }
 
-// apply from: 'publish.gradle'
+//apply from: 'publish.gradle'
