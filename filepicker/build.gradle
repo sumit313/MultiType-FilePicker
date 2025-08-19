@@ -1,4 +1,7 @@
-apply plugin: 'com.android.library'
+plugins {
+    id("com.android.library")
+    id("maven-publish")
+}
 
 android {
     namespace 'com.vincent.filepicker'
@@ -21,8 +24,8 @@ afterEvaluate {
         publications {
             create("release",MavenPublication) {
                 from components.findByName("release")
-                groupId = 'com.github.sumit313'
-                artifactId = 'MultiType-FilePicker'
+                groupId = 'com.github.sumit313.MultiType-FilePicker'
+                artifactId = 'filepicker'
                 version = '2.4.0'
             }
         }
