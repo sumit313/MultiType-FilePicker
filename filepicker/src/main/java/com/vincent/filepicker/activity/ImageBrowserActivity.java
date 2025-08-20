@@ -1,8 +1,13 @@
 package com.vincent.filepicker.activity;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.widget.Toolbar;
@@ -10,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowInsetsController;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
@@ -55,7 +61,7 @@ public class ImageBrowserActivity extends BaseActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         setContentView(R.layout.vw_activity_image_browser);
-
+        applyEdgeToEdge();
         mMaxNumber = getIntent().getIntExtra(Constant.MAX_NUMBER, DEFAULT_MAX_NUMBER);
         initIndex = getIntent().getIntExtra(IMAGE_BROWSER_INIT_INDEX, 0);
         mCurrentIndex = initIndex;
@@ -216,5 +222,32 @@ public class ImageBrowserActivity extends BaseActivity {
     @Override
     public void onBackPressed() {
         finishThis();
+    }
+    private void applyEdgeToEdge(){
+        // Apply system insets
+        getWindow().setStatusBarColor(Color.TRANSPARENT);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.vw_activity_image_browser_root_view), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            final WindowInsetsController insetsController = getWindow().getInsetsController();
+            if (insetsController != null) {
+                insetsController.setSystemBarsAppearance(
+                        WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS | WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
+                        WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS | WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
+                );
+            }
+        } else {
+            int flags = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                flags |= View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+            }
+
+            getWindow().getDecorView().setSystemUiVisibility(flags);
+        }
     }
 }

@@ -2,16 +2,21 @@ package com.vincent.filepicker.activity;
 
 import android.Manifest;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.WindowInsetsController;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -76,7 +81,7 @@ public class VideoPickActivity extends BaseActivity implements View.OnClickListe
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.vw_activity_video_pick);
-
+        applyEdgeToEdge();
         mMaxNumber = getIntent().getIntExtra(Constant.MAX_NUMBER, DEFAULT_MAX_NUMBER);
         isNeedCamera = getIntent().getBooleanExtra(IS_NEED_CAMERA, false);
         isTakenAutoSelected = getIntent().getBooleanExtra(IS_TAKEN_AUTO_SELECTED, true);
@@ -294,6 +299,33 @@ public class VideoPickActivity extends BaseActivity implements View.OnClickListe
                 ActivityCompat.requestPermissions(this,PERMISSIONS,
                         RC_READ_EXTERNAL_STORAGE);
             }
+        }
+    }
+    private void applyEdgeToEdge(){
+        // Apply system insets
+        getWindow().setStatusBarColor(Color.TRANSPARENT);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.vw_activity_video_pick_root_view), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            final WindowInsetsController insetsController = getWindow().getInsetsController();
+            if (insetsController != null) {
+                insetsController.setSystemBarsAppearance(
+                        WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS | WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
+                        WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS | WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
+                );
+            }
+        } else {
+            int flags = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                flags |= View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+            }
+
+            getWindow().getDecorView().setSystemUiVisibility(flags);
         }
     }
 }
