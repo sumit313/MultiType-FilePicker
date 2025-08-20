@@ -24,7 +24,7 @@ afterEvaluate {
         publications {
             create("release",MavenPublication) {
                 from components.findByName("release")
-                groupId = 'com.github.sumit313.MultiType-FilePicker'
+                groupId = 'com.github.sumit313'
                 artifactId = 'filepicker'
                 version = '2.4.2'
             }
