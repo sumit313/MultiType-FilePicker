@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
+    namespace "com.vincent.filepickersample"
     compileSdkVersion 34
     defaultConfig {
         applicationId "com.vincent.filepickersample"

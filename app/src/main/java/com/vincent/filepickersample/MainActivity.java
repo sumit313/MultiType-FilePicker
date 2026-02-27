@@ -43,29 +43,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         int id = v.getId();
-        switch (id) {
-            case R.id.btn_pick_image:
+            if(id == R.id.btn_pick_image) {
                 Intent intent1 = new Intent(this, ImagePickActivity.class);
                 intent1.putExtra("IsNeedCamera", false);
                 intent1.putExtra(Constant.MAX_NUMBER, 10);
                 intent1.putExtra("isNeedFolderList", false);
                 startActivityForResult(intent1, Constant.REQUEST_CODE_PICK_IMAGE);
-                break;
-            case R.id.btn_pick_video:
+            } else if(id ==R.id.btn_pick_video) {
                 Intent intent2 = new Intent(this, VideoPickActivity.class);
                 intent2.putExtra("IsNeedCamera", false);
                 intent2.putExtra(Constant.MAX_NUMBER, 10);
                 intent2.putExtra("isNeedFolderList", false);
                 startActivityForResult(intent2, Constant.REQUEST_CODE_PICK_VIDEO);
-                break;
-            case R.id.btn_pick_audio:
+            }else if(id == R.id.btn_pick_audio) {
                 Intent intent3 = new Intent(this, AudioPickActivity.class);
                 intent3.putExtra("IsNeedRecorder", false);
                 intent3.putExtra(Constant.MAX_NUMBER, 10);
                 intent3.putExtra("isNeedFolderList", false);
                 startActivityForResult(intent3, Constant.REQUEST_CODE_PICK_AUDIO);
-                break;
-            case R.id.btn_pick_file:
+            }else if(id == R.id.btn_pick_file) {
                 /*Intent intent4 = new Intent(this, NormalFilePickActivity.class);
                 intent4.putExtra(Constant.MAX_NUMBER, 10);
                 intent4.putExtra("isNeedFolderList", false);
@@ -80,8 +76,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 /*NewNormalFilePickerUtil filePickerUtil = new NewNormalFilePickerUtil(MainActivity.this);
                 filePickerUtil.loadFilePicker();*/
-                break;
-        }
+                   }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)

@@ -100,11 +100,11 @@ public class ImagePickActivity extends BaseActivity implements View.OnClickListe
         limitAccessCl=(ConstraintLayout) findViewById(R.id.cl_manage);
         btnManage =(TextView) findViewById(R.id.txt_manage);
         btnManage.setOnClickListener(this);
-        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.TIRAMISU && EasyPermissions.hasPermissions(this, Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED) && !EasyPermissions.hasPermissions(this, Manifest.permission.READ_MEDIA_IMAGES)){
+        /*if(Build.VERSION.SDK_INT > Build.VERSION_CODES.TIRAMISU && EasyPermissions.hasPermissions(this, Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED) && !EasyPermissions.hasPermissions(this, Manifest.permission.READ_MEDIA_IMAGES)){
            autoLaunchMediaSelection=true;
             limitAccessCl.setVisibility(View.VISIBLE);
         }else
-            limitAccessCl.setVisibility(View.GONE);
+            limitAccessCl.setVisibility(View.GONE);*/
 
         mRecyclerView = (RecyclerView) findViewById(R.id.rv_image_pick);
         final GridLayoutManager layoutManager = new GridLayoutManager(this, COLUMN_NUMBER);
@@ -232,7 +232,7 @@ public class ImagePickActivity extends BaseActivity implements View.OnClickListe
                 refreshData(directories);
                 if(directories.isEmpty() && autoLaunchMediaSelection){
                     String[] PERMISSIONS = new String[0];
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                         PERMISSIONS = new String[]{
                                 Manifest.permission.READ_MEDIA_IMAGES,
                                 Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED,
@@ -240,7 +240,7 @@ public class ImagePickActivity extends BaseActivity implements View.OnClickListe
                         //  isGranted = EasyPermissions.hasPermissions(this, PERMISSIONS) || EasyPermissions.hasPermissions(this, Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED);
                         ActivityCompat.requestPermissions(ImagePickActivity.this,PERMISSIONS,
                                 RC_READ_EXTERNAL_STORAGE);
-                    }
+                    }*/
                 }
             }
         });
@@ -279,10 +279,10 @@ public class ImagePickActivity extends BaseActivity implements View.OnClickListe
         limitAccessCl=(ConstraintLayout) findViewById(R.id.cl_manage);
         btnManage =(TextView) findViewById(R.id.txt_manage);
         btnManage.setOnClickListener(this);
-        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.TIRAMISU && EasyPermissions.hasPermissions(this, Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED) && !EasyPermissions.hasPermissions(this, Manifest.permission.READ_MEDIA_IMAGES)){
+        /*if(Build.VERSION.SDK_INT > Build.VERSION_CODES.TIRAMISU && EasyPermissions.hasPermissions(this, Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED) && !EasyPermissions.hasPermissions(this, Manifest.permission.READ_MEDIA_IMAGES)){
             limitAccessCl.setVisibility(View.VISIBLE);
         }else
-            limitAccessCl.setVisibility(View.GONE);
+            limitAccessCl.setVisibility(View.GONE);*/
         super.onResume();
     }
 
@@ -312,7 +312,7 @@ public class ImagePickActivity extends BaseActivity implements View.OnClickListe
     public void onClick(View v) {
         if (v.getId() == R.id.txt_manage) {
             String[] PERMISSIONS = new String[0];
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 PERMISSIONS = new String[]{
                         Manifest.permission.READ_MEDIA_IMAGES,
                         Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED,
@@ -320,7 +320,7 @@ public class ImagePickActivity extends BaseActivity implements View.OnClickListe
               //  isGranted = EasyPermissions.hasPermissions(this, PERMISSIONS) || EasyPermissions.hasPermissions(this, Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED);
                 ActivityCompat.requestPermissions(this,PERMISSIONS,
                         RC_READ_EXTERNAL_STORAGE);
-            }
+            }*/
         }
     }
     private void applyEdgeToEdge(){

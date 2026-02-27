@@ -19,6 +19,7 @@
         android:layout_below="@id/rv_top_divider"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         android:background="@color/vw_BgRv">
         <TextView
             android:id="@+id/txt_manage_info"

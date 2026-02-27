@@ -74,13 +74,11 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             isReadPermissionGranted = EasyPermissions.hasPermissions(this, Manifest.permission.READ_EXTERNAL_STORAGE);
         }else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE){
-            isReadPermissionGranted = (EasyPermissions.hasPermissions(this, Manifest.permission.READ_MEDIA_AUDIO,
-                    Manifest.permission.READ_MEDIA_IMAGES,
-                    Manifest.permission.READ_MEDIA_VIDEO) || EasyPermissions.hasPermissions(this,Manifest.permission.READ_MEDIA_AUDIO,Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED));
+            isReadPermissionGranted = (EasyPermissions.hasPermissions(this, Manifest.permission.READ_MEDIA_AUDIO));
         }else{
-            isReadPermissionGranted = EasyPermissions.hasPermissions(this, Manifest.permission.READ_MEDIA_AUDIO,
-                    Manifest.permission.READ_MEDIA_IMAGES,
-                    Manifest.permission.READ_MEDIA_VIDEO);
+            isReadPermissionGranted = EasyPermissions.hasPermissions(this, Manifest.permission.READ_MEDIA_AUDIO
+                    /*Manifest.permission.READ_MEDIA_IMAGES,
+                    Manifest.permission.READ_MEDIA_VIDEO*/);
         }
 
         /*boolean isAllFileAccessGranted = true;
@@ -130,14 +128,14 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
                 };
             }else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE){
                 PERMISSIONS = new String[]{Manifest.permission.READ_MEDIA_AUDIO,
-                        Manifest.permission.READ_MEDIA_IMAGES,
+                       /* Manifest.permission.READ_MEDIA_IMAGES,
                         Manifest.permission.READ_MEDIA_VIDEO,
-                        Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED};
+                        Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED*/};
             }else{
                 PERMISSIONS = new String[]{
-                        Manifest.permission.READ_MEDIA_AUDIO,
+                        Manifest.permission.READ_MEDIA_AUDIO,/*
                         Manifest.permission.READ_MEDIA_IMAGES,
-                        Manifest.permission.READ_MEDIA_VIDEO
+                        Manifest.permission.READ_MEDIA_VIDEO*/
                 };
             }
             /*}else {
@@ -161,38 +159,37 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
                     Manifest.permission.READ_EXTERNAL_STORAGE
             };
         }else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE){
-            if(this.getClass() == VideoPickActivity.class){
+           /* if(this.getClass() == VideoPickActivity.class){
                 PERMISSIONS = new String[]{
-                        Manifest.permission.READ_MEDIA_VIDEO,
+                       // Manifest.permission.READ_MEDIA_VIDEO,
                         Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
                 };
             }else if(this.getClass() == ImagePickActivity.class || this.getClass()== ImageBrowserActivity.class){
                 PERMISSIONS = new String[]{
-                        Manifest.permission.READ_MEDIA_IMAGES,
+                        //Manifest.permission.READ_MEDIA_IMAGES,
                         Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
                 };
-            } else if (this.getClass()== AudioPickActivity.class){
+            } else */if (this.getClass()== AudioPickActivity.class){
                 PERMISSIONS = new String[]{
                         Manifest.permission.READ_MEDIA_AUDIO};
             }else {
                 PERMISSIONS = new String[]{
                         Manifest.permission.READ_MEDIA_AUDIO,
-                        Manifest.permission.READ_MEDIA_IMAGES,
+                       /* Manifest.permission.READ_MEDIA_IMAGES,
                         Manifest.permission.READ_MEDIA_VIDEO,
-                        Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
+                        Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED*/
                 };
             }
         }else{
             PERMISSIONS = new String[]{
                     Manifest.permission.READ_MEDIA_AUDIO,
-                    Manifest.permission.READ_MEDIA_IMAGES,
-                    Manifest.permission.READ_MEDIA_VIDEO
+                   /* Manifest.permission.READ_MEDIA_IMAGES,
+                    Manifest.permission.READ_MEDIA_VIDEO*/
             };
         }
             boolean isGranted = false;
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-                    isGranted=(EasyPermissions.hasPermissions(this, Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED) && this.getClass()!=AudioPickActivity.class) ||
-                            (EasyPermissions.hasPermissions(this,Manifest.permission.READ_MEDIA_AUDIO) && this.getClass()==AudioPickActivity.class);
+                    isGranted=(EasyPermissions.hasPermissions(this,Manifest.permission.READ_MEDIA_AUDIO) && this.getClass()==AudioPickActivity.class);
                 else
                     isGranted=EasyPermissions.hasPermissions(this, PERMISSIONS);
         if (isGranted) {
@@ -213,18 +210,18 @@ public abstract class BaseActivity extends AppCompatActivity implements EasyPerm
     @Override
     public void onPermissionsDenied(int requestCode, List<String> perms) {
         Log.d(TAG, "onPermissionsDenied:" + requestCode + ":" + perms.size());
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE && EasyPermissions.hasPermissions(this,Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)
+        /*if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE && EasyPermissions.hasPermissions(this,Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)
         && (perms.contains(Manifest.permission.READ_MEDIA_IMAGES) || perms.contains(Manifest.permission.READ_MEDIA_VIDEO))){
             autoLaunchMediaSelection=false;
             permissionGranted();
-        }else{
+        }else{*/
             // If Permission permanently denied, ask user again
             if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
                 new AppSettingsDialog.Builder(this).build().show();
             } else {
                 finish();
             }
-        }
+        //}
     }
 
     @Override
